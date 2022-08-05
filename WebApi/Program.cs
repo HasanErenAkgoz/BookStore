@@ -1,38 +1,47 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using WebApi.DBOperations;
-using Microsoft.Extensions.DependencyInjection;
+using WebApi.Middlewares;
+using WebApi.Services;
 
-namespace WebApi
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<BookStoreDbContext>(options => options.UseInMemoryDatabase(databaseName: "BookStoreDb"));
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddSingleton<ILoggerService, DbLogger>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-            
-            using (var scope = host.Services.CreateScope())
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
             {
-                var services = scope.ServiceProvider;
-                DataGenerator.Initialize(services);
-            }
-
-            host.Run();
-
-
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+                c.RoutePrefix = string.Empty;
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MY API");
+            });
 }
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.UseCustomExceptionMiddle();
+
+app.MapControllers();
+
+using(var scope = app.Services.CreateScope()){
+    var services = scope.ServiceProvider;
+    DataGenerator.Initialize(services);
+}
+
+
+
+app.Run();
