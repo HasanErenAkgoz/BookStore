@@ -1,34 +1,38 @@
+using System;
+using System.Linq;
 using AutoMapper;
 using WebApi.DBOperations;
 using WebApi.Entities;
 
 namespace WebApi.Application.AuthorOperations.Commands.CreateAuthor
 {
-    public class CreateAuthorCommand{
-        private readonly BookStoreDbContext _context;
+    public class CreateAuthorCommand
+    {
+        public CreateAuthorModel Model {get;set;}
+        private readonly IBookStoreDbContext _dbContext;
         private readonly IMapper _mapper;
-        public CreateAuthorModel Model;
-
-        public CreateAuthorCommand(BookStoreDbContext context, IMapper mapper)
+        public CreateAuthorCommand(IMapper mapper, IBookStoreDbContext dbContext)
         {
-            _context = context;
             _mapper = mapper;
+            _dbContext = dbContext;
         }
 
-        public void Handle(){
-            var author = _context.Authors.SingleOrDefault(command => command.Name == Model.Name);
+        public void Handle()
+        {
+            var author =_dbContext.Authors.SingleOrDefault(x=>x.Name== Model.Name && x.Surname==Model.Surname);
             if(author is not null)
-                throw new InvalidOperationException("Yazar zaten mevcut!");
-            author = _mapper.Map<Author>(Model);
-            _context.Authors.Add(author);
-            _context.SaveChanges();
-        }
+                throw new InvalidOperationException("Yazar Zaten Mevcut.");
 
+            author=_mapper.Map<Author>(Model);
+            _dbContext.Authors.Add(author);
+            _dbContext.SaveChanges();
+        }
     }
 
-    public class CreateAuthorModel{
+    public class CreateAuthorModel
+    {
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime Birthday { get; set; }
+        public string DateOfBirth { get; set; }
     }
 }

@@ -1,30 +1,34 @@
+using System;
+using System.Linq;
 using WebApi.DBOperations;
 using WebApi.Entities;
 
 namespace WebApi.Application.GenreOperations.Commands.CreateGenre
 {
-    public class CreateGenreCommand{
-        public CreateGenreModel Model { get; set;}
-        private readonly BookStoreDbContext _context;
+    public class CreateGenreCommand
+    {
+        public CreateGenreModel Model{ get; set;}
+        private readonly IBookStoreDbContext _context;
 
-        public CreateGenreCommand(BookStoreDbContext context)
+        public CreateGenreCommand(IBookStoreDbContext context)
         {
             _context = context;
         }
 
-        public void Hanlde(){
-            var genre = _context.Genres.SingleOrDefault(x => x.Name == Model.Name);
+        public void Handle()
+        {
+            var genre= _context.Genres.SingleOrDefault(x=>x.Name==Model.Name);
             if(genre is not null)
-                throw new InvalidOperationException("Kitap türü zaten mevcut!");
-            
-            genre = new Genre();
-            genre.Name = Model.Name;
+                throw new InvalidOperationException("Kitap Türü Zaten Mevcut.");
+            genre=new Genre();
+            genre.Name=Model.Name;
             _context.Genres.Add(genre);
             _context.SaveChanges();
         }
     }
 
-    public class CreateGenreModel{
-        public string Name { get; set; }
+    public class CreateGenreModel
+    {
+        public string Name { get; set;}
     }
 }

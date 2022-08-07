@@ -1,10 +1,12 @@
+using System;
+
 namespace WebApi.Services
 {
-    public class DbLogger : ILoggerService
+    public class DBLogger : ILoggerService
     {
         public void Write(string message)
         {
-            Console.WriteLine(" [DBLooger] - " + message);
+            Console.WriteLine("[DBLogger] - "+ message);
         }
     }
 }

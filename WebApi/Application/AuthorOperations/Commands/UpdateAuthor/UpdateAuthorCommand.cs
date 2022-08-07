@@ -1,38 +1,42 @@
-using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using WebApi.Common;
 using WebApi.DBOperations;
 
-namespace WebApi.Application.AuthorOperations.Commands.UpdateAuthor
+namespace WebApi.Application.UpdateOperation.Command.UpdateAuthor
 {
-    public class UpdateAuthorCommand{
-        public int AuthorId { get; set; }
-        private readonly BookStoreDbContext _context;
-        private readonly IMapper _mapper;
-        public UpdateAuthorModel Model;
-
-        public UpdateAuthorCommand(BookStoreDbContext context, IMapper mapper)
+    public class UpdateAuthorCommand
+    {
+        public int Authorid {get;set;}
+        public UpdateAuthorModel Model {get;set;}
+        private readonly IBookStoreDbContext _dbContext;
+        public UpdateAuthorCommand(IBookStoreDbContext dbContext )
         {
-            _context = context;
-            _mapper = mapper;
+            _dbContext = dbContext;
         }
 
-        public void Handle(){
-            var author = _context.Authors.SingleOrDefault(command => command.Id == AuthorId);
-            if(author is null)
-                throw new InvalidOperationException("Yazar bulunamadı!");
-            author.Name = Model.Name != string.Empty ? Model.Name : author.Name;
-            author.Surname = Model.Surname != string.Empty ? Model.Surname : author.Surname;
-            author.Birthday = Model.Birthday != default ? Model.Birthday : author.Birthday;
-            author.IsActive = Model.IsActive;
+        public void Handle()
+        {
+            var author = _dbContext.Authors.SingleOrDefault(x=>x.Id== Authorid);
+             if(author is null)
+                throw new InvalidOperationException("Yazar Bulunamadı.");
+            
+            author.Name = Model.Name == default ? author.Name : Model.Name;
+            author.Surname = Model.Surname == default ? author.Surname : Model.Surname;
+            author.DateOfBirth=Convert.ToDateTime(Model.DateOfBirth);
+            
+            _dbContext.Authors.Update(author);
+            _dbContext.SaveChanges();
 
-            _context.SaveChanges();
         }
     }
 
-
-    public class UpdateAuthorModel{
+    public class UpdateAuthorModel
+    {
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime Birthday { get; set; }
-        public bool IsActive { get; set; } = true;
+        public string DateOfBirth { get; set; }
     }
 }

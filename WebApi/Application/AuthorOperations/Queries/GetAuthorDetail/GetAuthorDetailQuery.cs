@@ -1,33 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApi.Common;
 using WebApi.DBOperations;
 
 namespace WebApi.Application.AuthorOperations.Queries.GetAuthorDetail
 {
-    public class GetAuthorDetailQuery{
-        private readonly BookStoreDbContext _context;
-        private readonly IMapper _mapper;
+    public class GetAuthorDetailQuery
+    {
         public int AuthorId { get; set; }
+        public readonly IBookStoreDbContext _context;
+        public readonly IMapper _mapper;
 
-        public GetAuthorDetailQuery(BookStoreDbContext context, IMapper mapper)
+        public GetAuthorDetailQuery(IBookStoreDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public AuthorDetailViewModel Handle(){
-            var author = _context.Authors.SingleOrDefault(x => x.IsActive && x.Id == AuthorId);
+        public AuthorsDetailViewModel Handle()
+        {
+            var author = _context.Authors.SingleOrDefault(x=>x.Id == AuthorId);
             if(author is null)
-                throw new InvalidOperationException("Yazar bulunamadı!");
-            
-            return _mapper.Map<AuthorDetailViewModel>(author);
+                throw new InvalidOperationException("Yazar Bulunamadı.");
+            return _mapper.Map<AuthorsDetailViewModel>(author);
         }
-
     }
 
-    public class AuthorDetailViewModel{
+    public class AuthorsDetailViewModel
+    {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime Birthday { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        
     }
 }

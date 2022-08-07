@@ -1,6 +1,8 @@
 namespace WebApi.Services
-{
-    public interface ILoggerService{
+{ //Dependency Injection
+    public interface ILoggerService
+    {
         public void Write(string message);
     }
+   
 }

@@ -1,10 +1,13 @@
+using System;
+
 namespace WebApi.Services
-{
-    public class ConsoleLogger : ILoggerService
+{ //Dependency Injection
+    public class ConsoleLogger:ILoggerService
     {
         public void Write(string message)
         {
-            Console.WriteLine(" [ConsoleLogger] - " + message);
+            Console.WriteLine("[ConsoleLogger] - "+message);
         }
     }
+   
 }

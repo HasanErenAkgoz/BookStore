@@ -1,47 +1,36 @@
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using WebApi.DBOperations;
-using WebApi.Middlewares;
-using WebApi.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<BookStoreDbContext>(options => options.UseInMemoryDatabase(databaseName: "BookStoreDb"));
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddSingleton<ILoggerService, DbLogger>();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace WebApi
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var host=CreateHostBuilder(args).Build();// hostu aldık
+
+            using(var scope=host.Services.CreateScope())//Uygulama her ayaga kalktıgında veriler dbye yazılacak
             {
-                c.RoutePrefix = string.Empty;
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MY API");
-            });
+                var services=scope.ServiceProvider;
+                DataGenerator.Initialize(services);
+            }
+            
+            host.Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.UseCustomExceptionMiddle();
-
-app.MapControllers();
-
-using(var scope = app.Services.CreateScope()){
-    var services = scope.ServiceProvider;
-    DataGenerator.Initialize(services);
-}
-
-
-
-app.Run();

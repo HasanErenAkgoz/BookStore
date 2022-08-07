@@ -1,13 +1,13 @@
 using FluentValidation;
 
-namespace WebApi.Application.AuthorOperations.Commands.UpdateAuthor
+namespace WebApi.Application.UpdateOperation.Command.UpdateAuthor
 {
-    public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorCommand>{
-        public UpdateAuthorCommandValidator(){
-            RuleFor(command => command.AuthorId).GreaterThan(0);
-            RuleFor(command => command.Model.Name).NotEmpty();
-            RuleFor(command => command.Model.Surname).NotEmpty();
-            RuleFor(command => command.Model.Birthday).NotNull();
+    public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorCommand>
+    {
+        public UpdateAuthorCommandValidator()
+        {
+            RuleFor(command=> command.Model.Name).NotEmpty().MinimumLength(4);
+            RuleFor(command=> command.Model.Surname).NotEmpty().MinimumLength(4);
         }
     }
 }
